@@ -1,0 +1,74 @@
+#include <Stepper.h>
+ 
+#define STEPS 32
+ 
+#define Sensor_direita A0
+#define Sensor_esquerda A1 
+#define Sensor_frente1 A2
+#define Sensor_frente2 A3
+//Primeiramente incluímos a biblioteca do motor de passo para Arduino ("Stepper.h"), então definimos 
+//a quantidade de passos por volta do motor, que no caso era igual a 32. Após isso, definimos as 
+// variáveis relativas aos sensores e suas respectivas entradas. 
+
+//frente 1 = esquerda
+//frente 2 - direita
+ 
+Stepper motor_esquerda(stepsPerRevolution, 8, 10, 9, 11);
+Stepper motor_direita(stepsPerRevolution, 2, 4, 3, 5);
+
+const int stepsPerRevolution = 2048;
+  
+void funcaoMotor() {
+ 
+  motor_direita.setSpeed(15);
+  motor_esquerda.setSpeed(15);
+ 
+  Serial.begin(9600);
+    pinMode(Sensor_direita, INPUT);
+    pinMode(Sensor_esquerda, INPUT);
+    pinMode(Sensor_frente1, INPUT);
+    pinMode(Sensor_frente2, INPUT);
+
+}
+
+void funcaoSensores(){
+  Serial.print("direita: ");
+  Serial.print(digitalRead(Sensor_direita));
+  Serial.print(" frente1: ");
+  Serial.print(digitalRead(Sensor_frente1));
+  Serial.print(" frente2: ");
+  Serial.println(digitalRead(Sensor_frente2));
+  Serial.print("esquerda: ");
+  Serial.println(digitalRead(Sensor_esquerda));
+}
+//Foram criadas duas funções, uma para definir o funcionamento dos motores e outra para leitura da distância 
+//detectada pelos sensores 
+void setup () {
+  funcaoMotor();
+
+} 
+
+void loop() {
+  funcaoSensores();
+
+if (digitalRead(Sensor_direita) == 1){
+  motor_direita.step(0);
+  motor_esquerda.step(1);
+  }
+else if (digitalRead(Sensor_direita) == 0 && digitalRead(Sensor_frente1) == 1 && digitalRead(Sensor_frente2) == 1) {
+  motor_direita.step(1);
+  motor_esquerda.step(1);
+  }
+else if (digitalRead(Sensor_esquerda) == 1 && digitalRead(Sensor_direita)== 0 && digitalRead(Sensor_frente1) == 0 && digitalRead(Sensor_frente2) == 0){
+  motor_esquerda.step(0);
+  motor_direita.step(1);
+  }
+else if (digitalRead(Sensor_direita) == 0 && digitalRead(Sensor_esquerda) == 0 && digitalRead(Sensor_frente1) == 0 && digitalRead(Sensor_frente2) == 0){
+  motor_direita.step(1);
+  motor_esquerda.step(0); 
+  }
+//Foi utilizada a condicional if else dentro da função loop para controlar a ativação dos motores 
+//dependendo da ativação dos sensores, através de um sitema que priorizaria o lado direito, seguido da frente
+// e por fim do lado esquerdo, prevendo também situações em que o rob teria que voltar caso não houvesse saída  
+  delay(250);
+}
